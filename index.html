@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OPERATOR // AI - Cyber Intelligence Terminal</title>
+  <meta name="description" content="A cyber-intelligence detective terminal game powered by 4-9B parameter models, local voice, and Web Audio. Built for Programming for AI subject project.">
+  <link rel="stylesheet" href="css/terminal.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📟</text></svg>">
+</head>
+<body>
+
+  <!-- Retro CRT Scanline Overlay -->
+  <div id="crtOverlay" class="crt-overlay"></div>
+
+  <!-- FDI Top Header -->
+  <header class="fdi-header">
+    <div class="header-brand">
+      <span class="brand-badge">FDI • DEPT 49</span>
+      <span class="brand-title">THE OPERATOR <span style="color: var(--cyan-primary);">// AI</span></span>
+    </div>
+
+    <div class="header-status">
+      <div class="status-pill">
+        <span class="dot green pulse"></span>
+        <span>LINK: ENCRYPTED</span>
+      </div>
+      <div class="status-pill">
+        <span class="dot amber"></span>
+        <span id="llmStatus">ONLINE (SIMULATED 7B)</span>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <button class="btn-icon" id="toggleCrtBtn" title="Toggle CRT Scanline Effect">📺 CRT FX</button>
+      <button class="btn-icon" id="toggleAudioBtn" title="Toggle Sound FX">🔊 SFX</button>
+      <button class="btn-icon" id="openDocsBtn" title="Course Project Documentation">📑 PROJECT DOCS</button>
+      <a href="https://github.com/hammadshakeelai/operator-ai" target="_blank" class="btn-icon" style="text-decoration: none; color: inherit;" title="GitHub Repository">⭐ REPO</a>
+    </div>
+  </header>
+
+  <!-- Main Workstation Layout -->
+  <main class="workspace-grid">
+
+    <!-- LEFT PANEL: CASE INTELLIGENCE & DOSSIER -->
+    <aside class="panel">
+      <div class="panel-header">
+        <span>CASE FILE #049</span>
+        <span class="tag confidential">TOP SECRET</span>
+      </div>
+      <div class="panel-body">
+        
+        <div class="dossier-card">
+          <h4>OPERATION BLACKOUT <span class="tag active">ACTIVE</span></h4>
+          <p>Location: Apex Dynamics Data Center.<br>Intrusion reported at 22:30 GMT. Main generators disabled. Assist Agent Walker on-site.</p>
+        </div>
+
+        <div style="font-size: 0.75rem; color: var(--cyan-primary); font-weight: bold; margin-top: 0.2rem;">
+          TACTICAL OBJECTIVES:
+        </div>
+        <div id="objectiveList">
+          <!-- Populated by gameEngine -->
+        </div>
+
+        <div style="font-size: 0.75rem; color: var(--cyan-primary); font-weight: bold; margin-top: 0.5rem;">
+          EVIDENCE FILES (CLICK TO READ):
+        </div>
+        <div class="file-tree">
+          <div class="file-tree-item" data-file="mission_brief.txt">📄 mission_brief.txt</div>
+          <div class="file-tree-item" data-file="access_log.enc">🔒 access_log.enc</div>
+          <div class="file-tree-item" data-file="network_dump.log">🌐 network_dump.log</div>
+          <div class="file-tree-item" data-file="suspect_dossier.txt">👥 suspect_dossier.txt</div>
+          <div class="file-tree-item" data-file="cctv_log.txt">📹 cctv_log.txt</div>
+        </div>
+
+        <div style="font-size: 0.75rem; color: var(--cyan-primary); font-weight: bold; margin-top: 0.5rem;">
+          QUICK TACTICAL ACTIONS:
+        </div>
+        <div class="chip-row">
+          <span class="chip" data-cmd="help">help</span>
+          <span class="chip" data-cmd="ls">ls</span>
+          <span class="chip" data-cmd="decrypt access_log.enc OMEGA">decrypt</span>
+          <span class="chip" data-cmd="trace 198.51.100.42">trace IP</span>
+          <span class="chip" data-cmd="cctv CAM-02">cctv-02</span>
+          <span class="chip" data-cmd="cctv CAM-03">cctv-03</span>
+          <span class="chip" data-cmd="radio 749201">radio code</span>
+          <span class="chip" data-cmd="radio Rostova is SPECTER">name mole</span>
+          <span class="chip" data-cmd="ask analyze suspect dossier">ask AI</span>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- CENTER PANEL: INTERACTIVE TERMINAL CONSOLE -->
+    <section class="panel terminal-container">
+      <div class="terminal-tabs">
+        <div class="terminal-tab active">
+          <span>>_</span> BASH CONSOLE (FDI-SH)
+        </div>
+        <div class="terminal-tab" onclick="window.terminalController.executeCommand('cctv CAM-02')">
+          <span>📹</span> SURVEILLANCE FEED
+        </div>
+        <div class="terminal-tab" onclick="window.terminalController.executeCommand('docs')">
+          <span>📋</span> AI ARCHITECTURE
+        </div>
+      </div>
+
+      <div id="terminalScreen" class="terminal-screen">
+        <!-- Terminal lines injected dynamically -->
+      </div>
+
+      <div class="terminal-input-bar">
+        <span class="prompt-prefix">operator@fdi-station-49:~$</span>
+        <input type="text" id="termInput" class="terminal-input" placeholder="Type command (e.g. 'help', 'ls', 'radio 749201', 'ask <query>')..." autocomplete="off" autofocus>
+      </div>
+    </section>
+
+    <!-- RIGHT PANEL: AGENT COMMS & AI CORE MATRIX -->
+    <aside class="panel">
+      <div class="panel-header">
+        <span>FIELD COMMS & AI CORE</span>
+        <span class="dot green"></span>
+      </div>
+      <div class="panel-body comm-station">
+        
+        <!-- Field Agent Profile -->
+        <div class="agent-profile">
+          <div class="agent-avatar">🕵️</div>
+          <div class="agent-info">
+            <h4>AGENT WALKER</h4>
+            <div class="subtitle">TACTICAL FIELD AGENT #8821</div>
+            <div style="font-size: 0.68rem; color: var(--emerald-accent); margin-top: 0.2rem;">● TRANSCEIVER CONNECTED</div>
+          </div>
+        </div>
+
+        <!-- Audio Frequency Oscilloscope Visualizer -->
+        <div>
+          <label style="font-size: 0.68rem; color: var(--text-dim); text-transform: uppercase;">COMMS FREQ OSCILLOGRAM</label>
+          <div class="visualizer-box">
+            <canvas id="audioCanvas"></canvas>
+          </div>
+        </div>
+
+        <!-- Push to Talk Mic Button -->
+        <button id="pttBtn" class="ptt-button">
+          🎙️ HOLD / CLICK TO TRANSMIT (VOICE)
+        </button>
+
+        <!-- 4-9B LLM Core Matrix -->
+        <div class="llm-config-box">
+          <label>4-9B PARAMETER MODEL BACKEND</label>
+          <select id="modelSelect" class="select-control">
+            <option value="simulation" selected>Local Neural Sim (Instant Offline Demo)</option>
+            <option value="ollama-qwen">Local Ollama: Qwen 2.5 7B (Port 11434)</option>
+            <option value="ollama-llama">Local Ollama: Llama 3.1 8B (Port 11434)</option>
+            <option value="webllm-qwen">WebGPU Browser: Qwen 2.5 7B (MLC-AI)</option>
+          </select>
+
+          <div class="model-stat-row">
+            <span>PARAMETER RANGE:</span>
+            <span class="val">4B - 9B DENSE</span>
+          </div>
+          <div class="model-stat-row">
+            <span>RECOMMENDED ARCH:</span>
+            <span class="val">QWEN2.5-7B-INSTRUCT</span>
+          </div>
+          <div class="model-stat-row">
+            <span>QUANTIZATION:</span>
+            <span class="val">Q4_K_M / FP16</span>
+          </div>
+          <div class="model-stat-row">
+            <span>VOICE I/O:</span>
+            <span class="val">WEB SPEECH API (ZERO API KEYS)</span>
+          </div>
+        </div>
+
+        <div style="font-size: 0.72rem; color: var(--text-muted); line-height: 1.4; border-top: 1px solid rgba(0, 243, 255, 0.1); padding-top: 0.5rem;">
+          <b style="color: var(--amber-accent);">TUTORIAL HINT:</b><br>
+          1. Read <code style="color:var(--cyan-primary)">cat mission_brief.txt</code><br>
+          2. Decrypt <code style="color:var(--cyan-primary)">decrypt access_log.enc OMEGA</code><br>
+          3. Send code to Walker: <code style="color:var(--cyan-primary)">radio 749201</code><br>
+          4. Ask AI: <code style="color:var(--cyan-primary)">ask who is SPECTER?</code>
+        </div>
+
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- Project Documentation & AI Course Modal -->
+  <div id="docsModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span>PROJECT // PROGRAMMING FOR AI DOCUMENTATION</span>
+        <button class="btn-icon" onclick="document.getElementById('docsModal').classList.add('hidden')">✖</button>
+      </div>
+      <div class="modal-body">
+        <h3 style="color: var(--cyan-primary); margin-bottom: 0.5rem;">OPERATOR // AI Architecture Overview</h3>
+        <p>This prototype demonstrates how to integrate <strong>small 4-9B parameter large language models</strong> into an interactive, voice-enabled intelligence operator game running entirely client-side via <strong>GitHub Pages</strong>.</p>
+        
+        <h4 style="color: var(--amber-accent); margin-top: 1rem; margin-bottom: 0.4rem;">1. Small 4-9B Parameter Models Explored:</h4>
+        <ul style="margin-left: 1.2rem; font-size: 0.8rem; line-height: 1.6;">
+          <li><strong>Qwen 2.5 (7B-Instruct / Coder):</strong> Optimal balance for code synthesis, regex, and terminal parsing with high accuracy.</li>
+          <li><strong>Llama 3.1 (8B-Instruct):</strong> 128k context length, great roleplay, and tactical field guidance reasoning.</li>
+          <li><strong>Gemma 2 (9B-it):</strong> Dense representation, low perplexity, trained on 8T tokens by Google DeepMind.</li>
+          <li><strong>Phi-3.5 Mini (3.8B):</strong> Extremely fast inference for memory-constrained edge hardware.</li>
+        </ul>
+
+        <h4 style="color: var(--amber-accent); margin-top: 1rem; margin-bottom: 0.4rem;">2. Local Voice & Audio Pipeline:</h4>
+        <ul style="margin-left: 1.2rem; font-size: 0.8rem; line-height: 1.6;">
+          <li><strong>Speech-to-Text (STT):</strong> Browser-native Web Speech API with Push-To-Talk (PTT) audio transcription.</li>
+          <li><strong>Text-to-Speech (TTS):</strong> SpeechSynthesis with tactical pitch modulation for Agent Walker & AI Copilot.</li>
+          <li><strong>Web Audio API:</strong> Procedurally synthesized mechanical key clicks, radio frequency squelches, and real-time oscillograms.</li>
+        </ul>
+
+        <h4 style="color: var(--amber-accent); margin-top: 1rem; margin-bottom: 0.4rem;">3. Multi-Engine Architecture:</h4>
+        <ul style="margin-left: 1.2rem; font-size: 0.8rem; line-height: 1.6;">
+          <li><strong>Local Ollama Bridge:</strong> Connects to <code>http://localhost:11434/api/generate</code> for zero-latency local 7B execution.</li>
+          <li><strong>WebGPU WebLLM:</strong> Direct in-browser GPU acceleration via WebAssembly and MLC-AI.</li>
+          <li><strong>Neural Fallback:</strong> Instant local simulator ensuring the GitHub Pages demo is 100% functional on any device!</li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-icon" onclick="document.getElementById('docsModal').classList.add('hidden')">CLOSE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mission Success Victory Modal -->
+  <div id="victoryModal" class="modal-overlay hidden">
+    <div class="modal-content" style="border-color: var(--emerald-accent); box-shadow: 0 0 35px rgba(16, 185, 129, 0.5);">
+      <div class="modal-header" style="background: rgba(16, 185, 129, 0.2); border-color: var(--emerald-accent);">
+        <span style="color: var(--emerald-accent);">🎉 CASE #049 CLOSED: MISSION ACCOMPLISHED</span>
+        <button class="btn-icon" onclick="document.getElementById('victoryModal').classList.add('hidden')">✖</button>
+      </div>
+      <div class="modal-body">
+        <h2 style="color: var(--emerald-accent); margin-bottom: 0.5rem;">EXCELLENT WORK, OPERATOR!</h2>
+        <p>Elena Rostova (Codename: SPECTER) has been apprehended at Emergency Exit 4. The exfiltrated data drive containing the syndicate's rootkit was secured by Agent Walker.</p>
+        <p style="margin-top: 0.75rem;">Your forensic terminal analysis, cryptographic decoding, and 4-9B AI assistance guided the field team flawlessly!</p>
+        
+        <div style="background: rgba(0,0,0,0.4); border: 1px solid var(--emerald-accent); padding: 0.75rem; border-radius: 4px; margin-top: 1rem;">
+          <div style="font-weight: bold; color: var(--emerald-accent);">MISSION PERFORMANCE METRICS:</div>
+          <div style="font-size: 0.75rem; margin-top: 0.4rem;">
+            ✔ Decrypted FDI-AES cipher container<br>
+            ✔ Traced satellite route to Zurich C2 server<br>
+            ✔ Transmitted biometric unlock code to field agent<br>
+            ✔ Identified mole identity using suspect dossier analysis
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-icon" onclick="document.getElementById('victoryModal').classList.add('hidden')">CONTINUE TERMINAL SESSION</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/llm.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/terminal.js"></script>
+  <script>
+    // Header UI button toggles
+    document.getElementById('toggleCrtBtn')?.addEventListener('click', () => {
+      document.getElementById('crtOverlay').classList.toggle('disabled');
+    });
+
+    document.getElementById('toggleAudioBtn')?.addEventListener('click', () => {
+      window.audioEngine.sfxEnabled = !window.audioEngine.sfxEnabled;
+      document.getElementById('toggleAudioBtn').style.opacity = window.audioEngine.sfxEnabled ? '1' : '0.5';
+    });
+
+    document.getElementById('openDocsBtn')?.addEventListener('click', () => {
+      document.getElementById('docsModal').classList.remove('hidden');
+    });
+  </script>
+</body>
+</html>
