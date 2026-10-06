@@ -12,7 +12,8 @@ class TerminalController {
     this.input = document.getElementById('termInput');
     this.commands = [
       'help', 'status', 'ls', 'dir', 'cat', 'decrypt', 'trace',
-      'cctv', 'radio', 'call', 'ask', 'ai', 'clear', 'model', 'voice', 'docs'
+      'cctv', 'radio', 'call', 'ask', 'ai', 'clear', 'model', 'voice', 'docs',
+      'dossier', 'bypass'
     ];
 
     this.initListeners();
@@ -223,15 +224,34 @@ CASE SOLVED: ${window.gameEngine.caseWon ? 'YES (SPECTER CAPTURED)' : 'IN PROGRE
           const traceReport = window.gameEngine.traceIP(param1);
           this.println(traceReport, 'system');
           window.audioEngine.playSuccess();
+          if (window.viewManager) window.viewManager.switchTab('tracer');
         }, 400);
         break;
 
       case 'cctv':
-        if (!param1) {
-          this.println(`Usage: cctv <cam_id> (Available: CAM-01, CAM-02, CAM-03, CAM-04)`, 'error');
-          return;
+        if (param1) {
+          const cam = param1.toUpperCase().includes('CAM') ? param1.toUpperCase() : `CAM-0${param1.replace(/\D/g, '') || '2'}`;
+          if (window.viewManager) {
+            window.viewManager.activeCam = cam;
+            window.viewManager.switchTab('cctv');
+          }
+          this.println(window.gameEngine.renderCCTV(param1), 'system');
+        } else {
+          if (window.viewManager) window.viewManager.switchTab('cctv');
+          this.println(`Switching display to CCTV surveillance matrix. Feeds: CAM-01, CAM-02, CAM-03, CAM-04`, 'system');
         }
-        this.println(window.gameEngine.renderCCTV(param1), 'system');
+        break;
+
+      case 'dossier':
+      case 'dossiers':
+      case 'suspects':
+        if (window.viewManager) window.viewManager.switchTab('dossiers');
+        this.println(`Switching display to Classified Suspect Dossier Pinboard.`, 'system');
+        break;
+
+      case 'bypass':
+        if (window.viewManager) window.viewManager.switchTab('bypass');
+        this.println(`Switching display to Airlock 02 Frequency Cipher Bypass Matrix.`, 'system');
         break;
 
       case 'radio':
@@ -244,6 +264,7 @@ CASE SOLVED: ${window.gameEngine.caseWon ? 'YES (SPECTER CAPTURED)' : 'IN PROGRE
         this.println(`[TRANSMITTING TO AGENT WALKER...]`, 'muted');
         const commResponse = window.gameEngine.transmitRadio(radioMsg || 'status');
         setTimeout(() => {
+          window.audioEngine.playIncomingCallTone();
           this.println(`[AGENT WALKER]: "${commResponse.text}"`, 'agent');
           window.audioEngine.speak(commResponse.text, 'agent');
           
@@ -251,7 +272,7 @@ CASE SOLVED: ${window.gameEngine.caseWon ? 'YES (SPECTER CAPTURED)' : 'IN PROGRE
             window.audioEngine.playSuccess();
             this.showVictoryModal();
           }
-        }, 500);
+        }, 450);
         break;
 
       case 'ask':

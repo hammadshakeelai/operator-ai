@@ -33,6 +33,7 @@
     </div>
 
     <div class="header-controls">
+      <button class="btn-icon" id="toggleAmbienceBtn" title="Toggle Sci-Fi Bunker Ambient Drone">🎧 AMBIENCE</button>
       <button class="btn-icon" id="toggleCrtBtn" title="Toggle CRT Scanline Effect">📺 CRT FX</button>
       <button class="btn-icon" id="toggleAudioBtn" title="Toggle Sound FX">🔊 SFX</button>
       <button class="btn-icon" id="openDocsBtn" title="Course Project Documentation">📑 PROJECT DOCS</button>
@@ -92,28 +93,163 @@
       </div>
     </aside>
 
-    <!-- CENTER PANEL: INTERACTIVE TERMINAL CONSOLE -->
+    <!-- CENTER PANEL: INTERACTIVE MULTI-VIEW WORKSTATION -->
     <section class="panel terminal-container">
       <div class="terminal-tabs">
-        <div class="terminal-tab active">
-          <span>>_</span> BASH CONSOLE (FDI-SH)
+        <div class="terminal-tab active" data-tab="terminal">
+          <span>>_</span> BASH CONSOLE
         </div>
-        <div class="terminal-tab" id="tabCctv">
-          <span>📹</span> SURVEILLANCE FEED
+        <div class="terminal-tab" data-tab="cctv">
+          <span>📹</span> CCTV MATRIX
         </div>
-        <div class="terminal-tab" id="tabDocs">
-          <span>📋</span> AI ARCHITECTURE
+        <div class="terminal-tab" data-tab="tracer">
+          <span>🌐</span> SATELLITE TRACER
+        </div>
+        <div class="terminal-tab" data-tab="dossiers">
+          <span>👥</span> SUSPECT DOSSIERS
+        </div>
+        <div class="terminal-tab" data-tab="bypass">
+          <span>🔐</span> CIPHER BYPASS
         </div>
       </div>
 
-      <div id="terminalScreen" class="terminal-screen">
-        <!-- Terminal lines injected dynamically -->
+      <!-- VIEW 1: BASH TERMINAL -->
+      <div id="view-terminal" class="tab-view">
+        <div id="terminalScreen" class="terminal-screen">
+          <!-- Terminal lines injected dynamically -->
+        </div>
+
+        <div class="terminal-input-bar">
+          <span class="prompt-prefix">operator@fdi-station-49:~$</span>
+          <input type="text" id="termInput" class="terminal-input" placeholder="Type command (e.g. 'help', 'ls', 'radio 749201', 'ask <query>')..." maxlength="500" autocomplete="off" autofocus>
+        </div>
       </div>
 
-      <div class="terminal-input-bar">
-        <span class="prompt-prefix">operator@fdi-station-49:~$</span>
-        <input type="text" id="termInput" class="terminal-input" placeholder="Type command (e.g. 'help', 'ls', 'radio 749201', 'ask <query>')..." maxlength="500" autocomplete="off" autofocus>
+      <!-- VIEW 2: CCTV SURVEILLANCE MATRIX -->
+      <div id="view-cctv" class="tab-view hidden">
+        <div class="cctv-container">
+          <div class="cctv-toolbar">
+            <div class="cctv-feed-selector">
+              <button class="cam-btn" data-cam="CAM-01">CAM-01: LOBBY</button>
+              <button class="cam-btn active" data-cam="CAM-02">CAM-02: SUBLEVEL 2</button>
+              <button class="cam-btn" data-cam="CAM-03">CAM-03: SERVER B</button>
+              <button class="cam-btn" data-cam="CAM-04">CAM-04: EXIT 4</button>
+            </div>
+            <button class="btn-icon" id="enhanceCctvBtn" style="color: var(--amber-accent); border-color: var(--amber-accent);">🔍 ENHANCE / AI SCAN</button>
+          </div>
+          <div class="cctv-viewport">
+            <canvas id="cctvCanvas"></canvas>
+          </div>
+        </div>
       </div>
+
+      <!-- VIEW 3: SATELLITE ROUTE TRACER -->
+      <div id="view-tracer" class="tab-view hidden">
+        <div class="tracer-container">
+          <div class="cctv-toolbar">
+            <span style="font-size: 0.75rem; color: var(--cyan-primary); font-weight: bold;">FDI SATELLITE NETWORK TELEMETRY // HOP VISUALIZER</span>
+            <button class="btn-icon" id="pingRouteBtn" style="color: var(--cyan-primary); border-color: var(--cyan-primary);">📡 PING & TRACE TARGET 198.51.100.42</button>
+          </div>
+          <div class="tracer-viewport">
+            <canvas id="tracerCanvas"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 4: SUSPECT DOSSIERS PINBOARD -->
+      <div id="view-dossiers" class="tab-view hidden">
+        <div class="pinboard-container">
+          <div style="font-size: 0.8rem; color: var(--amber-accent); font-weight: bold;">
+            CLASSIFIED PERSONNEL SUSPECT BOARD:
+          </div>
+          <div class="suspect-grid">
+            <!-- Suspect 1 -->
+            <div class="suspect-card">
+              <div class="suspect-header">
+                <div class="suspect-avatar">👨‍🔬</div>
+                <div class="suspect-meta">
+                  <h4>DR. VANCE ALDEN</h4>
+                  <span>Chief Architect | #4491</span>
+                </div>
+              </div>
+              <div class="suspect-details">
+                Status: <strong>CLEARED</strong><br>
+                Location: Secure Bunker A during blackout.<br>
+                Alibi confirmed by secondary biometric sensor.
+              </div>
+              <div class="suspect-actions">
+                <button class="btn-small interrogate-btn" data-suspect="Dr. Vance">INTERROGATE AI</button>
+              </div>
+            </div>
+
+            <!-- Suspect 2 -->
+            <div class="suspect-card">
+              <div class="suspect-header">
+                <div class="suspect-avatar">👨‍💻</div>
+                <div class="suspect-meta">
+                  <h4>MARCUS KANE</h4>
+                  <span>Lead SysAdmin | #5120</span>
+                </div>
+              </div>
+              <div class="suspect-details">
+                Status: <strong>QUESTIONED</strong><br>
+                Location: Off-site at incident onset.<br>
+                No abnormal external packet activity on his workstation.
+              </div>
+              <div class="suspect-actions">
+                <button class="btn-small interrogate-btn" data-suspect="Marcus Kane">INTERROGATE AI</button>
+              </div>
+            </div>
+
+            <!-- Suspect 3 (The Mole) -->
+            <div class="suspect-card suspect-prime">
+              <div class="suspect-header">
+                <div class="suspect-avatar" style="border-color: var(--crimson-alert);">👩‍💼</div>
+                <div class="suspect-meta">
+                  <h4 style="color: #fca5a5;">ELENA ROSTOVA</h4>
+                  <span style="color: var(--crimson-alert);">Cryptographic Lead | #7741</span>
+                </div>
+              </div>
+              <div class="suspect-details">
+                Status: <strong style="color: var(--crimson-alert);">FLIGHT RISK / SUSPECT PRIME</strong><br>
+                Codename: <em>SPECTER</em><br>
+                Badge used to breach Server B at 22:38 GMT right before power failure!
+              </div>
+              <div class="suspect-actions">
+                <button class="btn-small interrogate-btn" data-suspect="Elena Rostova">INTERROGATE AI</button>
+                <button class="btn-small btn-danger accuse-btn" data-suspect="Elena Rostova">ACCUSE AS MOLE</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- VIEW 5: CIPHER BYPASS MINIGAME -->
+      <div id="view-bypass" class="tab-view hidden">
+        <div class="bypass-container">
+          <div class="bypass-lock-box">
+            <h3 style="color: var(--amber-accent); font-size: 1rem; margin-bottom: 0.4rem;">AIRLOCK 02 FREQUENCY OVERRIDE</h3>
+            <p style="font-size: 0.75rem; color: var(--text-dim);">
+              Align the 6-digit biometric cryptographic key extracted from <code>access_log.enc</code> (Key Hint: 'OMEGA'):
+            </p>
+            <div class="dial-grid">
+              <input type="text" id="dial-0" class="dial-input" maxlength="1" value="0">
+              <input type="text" id="dial-1" class="dial-input" maxlength="1" value="0">
+              <input type="text" id="dial-2" class="dial-input" maxlength="1" value="0">
+              <input type="text" id="dial-3" class="dial-input" maxlength="1" value="0">
+              <input type="text" id="dial-4" class="dial-input" maxlength="1" value="0">
+              <input type="text" id="dial-5" class="dial-input" maxlength="1" value="0">
+            </div>
+            <div id="bypassStatus" class="bypass-status pending">
+              DIAL ALIGNMENT: PENDING [ 7 - 4 - 9 - 2 - 0 - 1 ]
+            </div>
+            <div style="margin-top: 1rem; display: flex; justify-content: center; gap: 0.6rem;">
+              <button class="btn-small" id="autoFillBypassBtn" style="padding: 0.5rem 1rem;">AUTO-FILL CODE (749201)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </section>
 
     <!-- RIGHT PANEL: AGENT COMMS & AI CORE MATRIX -->
@@ -260,6 +396,7 @@
   <script src="js/llm.js"></script>
   <script src="js/game.js"></script>
   <script src="js/terminal.js"></script>
+  <script src="js/views.js"></script>
   <script>
     // Header UI button toggles
     document.getElementById('toggleCrtBtn')?.addEventListener('click', () => {
@@ -269,6 +406,16 @@
     document.getElementById('toggleAudioBtn')?.addEventListener('click', () => {
       window.audioEngine.sfxEnabled = !window.audioEngine.sfxEnabled;
       document.getElementById('toggleAudioBtn').style.opacity = window.audioEngine.sfxEnabled ? '1' : '0.5';
+    });
+
+    document.getElementById('toggleAmbienceBtn')?.addEventListener('click', () => {
+      const active = window.audioEngine.toggleAmbience();
+      const btn = document.getElementById('toggleAmbienceBtn');
+      if (btn) {
+        btn.style.color = active ? 'var(--cyan-primary)' : 'inherit';
+        btn.style.borderColor = active ? 'var(--cyan-primary)' : 'rgba(0, 243, 255, 0.2)';
+        btn.textContent = active ? '🎧 AMBIENCE (ON)' : '🎧 AMBIENCE';
+      }
     });
 
     document.getElementById('openDocsBtn')?.addEventListener('click', () => {

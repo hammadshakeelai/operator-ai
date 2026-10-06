@@ -93,7 +93,10 @@ Generators have failed at the Apex Dynamics Cyber Facility. An unauthorized brea
 | `cat <file>` | `cat mission_brief.txt` | Reads contents of logs, dossiers, and network dumps. |
 | `decrypt <file> <key>` | `decrypt access_log.enc OMEGA` | Decodes 256-bit encrypted containers with the cipher key. |
 | `trace <ip>` | `trace 198.51.100.42` | Performs multi-hop satellite trace of suspect IP address. |
-| `cctv <cam_id>` | `cctv CAM-02` | Renders ASCII wireframe surveillance feeds. |
+| `cctv [cam_id]` | `cctv CAM-02` | Opens interactive CCTV surveillance matrix with live feeds. |
+| `trace <ip>` | `trace 198.51.100.42` | Launches visual satellite tracer map across global nodes. |
+| `dossier` | `dossier` | Opens Classified Suspect Pinboard to interrogate or flag suspects. |
+| `bypass` | `bypass` | Launches the interactive 6-digit frequency cipher bypass puzzle. |
 | `radio <msg>` | `radio 749201` | Transmits verbal orders and passcodes to Agent Walker. |
 | `ask <query>` | `ask how to bypass firewall` | Queries your 4–9B parameter LLM co-pilot for forensic guidance. |
 | `status` | `status` | Displays active case objectives and AI telemetry. |
@@ -101,14 +104,25 @@ Generators have failed at the Apex Dynamics Cyber Facility. An unauthorized brea
 
 ---
 
-## 🚀 5. How to Run & Play
+## 🛰️ 5. Interactive Workstation Views
+
+Beyond the Linux terminal shell, the FDI console features dedicated interactive views:
+1. **📹 CCTV Surveillance Matrix:** 4 live simulated feeds (`CAM-01 Lobby`, `CAM-02 Sublevel 2`, `CAM-03 Server B Vault`, `CAM-04 Emergency Exit 4`) with scanlines, live GMT timestamps, CRT noise, and target bounding box scanner.
+2. **🌐 Satellite Tracer Radar:** Visual canvas illustrating multi-hop satellite packet propagation from Zurich C2 node to Apex DMZ.
+3. **👥 Classified Suspect Pinboard:** Evidence dossier cards for Dr. Vance Alden, Marcus Kane, and Elena Rostova (*SPECTER*) with 1-click AI cross-examination and arrest dispatch.
+4. **🔐 Cipher Bypass Minigame:** Interactive 6-dial frequency aligner to breach the Sublevel 2 airlock.
+5. **🎧 Atmospheric Bunker Ambience:** Procedurally generated 55Hz sub-bass analog drone and tape-hiss background audio via Web Audio API.
+
+---
+
+## 🚀 6. How to Run & Play
 
 ### A. Instant Play in Browser (GitHub Pages)
-Once deployed on GitHub Pages, navigate to your URL:
+Navigate to the live URL:
 ```text
-https://<your-username>.github.io/<repo-name>/
+https://hammadshakeelai.github.io/operator-ai/
 ```
-The game will start immediately using the zero-setup **Neural Simulation Core**.
+The game starts immediately with the **Neural Simulation Core**.
 
 ### B. Connecting a Real Local 4–9B Model (Ollama)
 To power the terminal with your local GPU:
@@ -119,26 +133,22 @@ To power the terminal with your local GPU:
    # or
    ollama run llama3.1:8b
    ```
-3. Enable cross-origin requests for browser connections (if required):
+3. Enable cross-origin requests for browser connections:
    - **Linux / macOS**: `OLLAMA_ORIGINS="*" ollama serve`
    - **Windows**: Set environment variable `OLLAMA_ORIGINS="*"` and restart Ollama.
 4. On the game's right panel, switch the model selector to **"Local Ollama: Qwen 2.5 7B"**.
 
 ### C. Run Locally with Any HTTP Server
-Clone the repo and start a local web server:
 ```bash
-# Clone the repository
 git clone https://github.com/hammadshakeelai/operator-ai.git
 cd operator-ai
-
-# Start a local Python HTTP server
 python -m http.server 8000
 ```
-Open `http://localhost:8000` in Google Chrome or Microsoft Edge (recommended for Web Speech and WebGPU support).
+Open `http://localhost:8000` in Google Chrome or Microsoft Edge.
 
 ---
 
-## 📂 6. Repository File Structure
+## 📂 7. Repository File Structure
 
 ```text
 ├── .github/
@@ -147,12 +157,13 @@ Open `http://localhost:8000` in Google Chrome or Microsoft Edge (recommended for
 ├── assets/
 │   └── banner.svg            # Cyberpunk SVG banner graphic
 ├── css/
-│   └── terminal.css          # CRT scanlines, HUD styling, responsive grid
+│   └── terminal.css          # CRT scanlines, HUD styling, multiview tabs & canvases
 ├── js/
-│   ├── audio.js              # Web Audio synth, radio squelch, TTS, and STT
-│   ├── llm.js                # Multi-engine 4-9B model adapter (Ollama/WebGPU/Sim)
+│   ├── audio.js              # Web Audio synth, ambient drone, radio squelch, TTS, and STT
+│   ├── llm.js                # Multi-engine 4-9B model adapter with prompt injection defense
 │   ├── game.js               # Case file state, objectives, puzzles, CCTV renderer
-│   └── terminal.js           # CLI parser, command history, tab-autocomplete
+│   ├── terminal.js           # CLI parser, command history, tab-autocomplete
+│   └── views.js              # Interactive CCTV, Satellite Tracer, Pinboard & Bypass game
 ├── index.html                # Main FDI Operator Workstation UI
 ├── LICENSE                   # MIT License
 └── README.md                 # Project documentation & AI research report

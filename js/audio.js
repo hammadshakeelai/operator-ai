@@ -13,6 +13,8 @@ class AudioEngine {
     this.recognition = null;
     this.isRecording = false;
     this.onVoiceInput = null;
+    this.ambienceActive = false;
+    this.ambienceNodes = null;
 
     this.initAudioContext();
     this.initSpeechRecognition();
@@ -33,6 +35,101 @@ class AudioEngine {
     if (this.audioCtx && this.audioCtx.state === 'suspended') {
       this.audioCtx.resume();
     }
+  }
+
+  // Cinematic sci-fi command bunker ambient drone (55Hz sub-bass + filtered tape noise)
+  toggleAmbience() {
+    if (!this.audioCtx) return false;
+    this.ensureContext();
+
+    if (this.ambienceActive) {
+      this.stopAmbience();
+      return false;
+    } else {
+      this.startAmbience();
+      return true;
+    }
+  }
+
+  startAmbience() {
+    if (this.ambienceNodes || !this.audioCtx) return;
+    this.ensureContext();
+
+    try {
+      // Sub drone osc
+      const droneOsc = this.audioCtx.createOscillator();
+      droneOsc.type = 'sawtooth';
+      droneOsc.frequency.setValueAtTime(55, this.audioCtx.currentTime);
+
+      const droneFilter = this.audioCtx.createBiquadFilter();
+      droneFilter.type = 'lowpass';
+      droneFilter.frequency.setValueAtTime(110, this.audioCtx.currentTime);
+
+      const droneGain = this.audioCtx.createGain();
+      droneGain.gain.setValueAtTime(0.015, this.audioCtx.currentTime);
+
+      // Subtle air noise
+      const bufferSize = this.audioCtx.sampleRate * 2;
+      const noiseBuffer = this.audioCtx.createBuffer(1, bufferSize, this.audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = Math.random() * 2 - 1;
+      }
+
+      const noiseSource = this.audioCtx.createBufferSource();
+      noiseSource.buffer = noiseBuffer;
+      noiseSource.loop = true;
+
+      const noiseFilter = this.audioCtx.createBiquadFilter();
+      noiseFilter.type = 'bandpass';
+      noiseFilter.frequency.setValueAtTime(450, this.audioCtx.currentTime);
+      noiseFilter.Q.setValueAtTime(2.0, this.audioCtx.currentTime);
+
+      const noiseGain = this.audioCtx.createGain();
+      noiseGain.gain.setValueAtTime(0.006, this.audioCtx.currentTime);
+
+      // Connect
+      droneOsc.connect(droneFilter);
+      droneFilter.connect(droneGain);
+      droneGain.connect(this.audioCtx.destination);
+
+      noiseSource.connect(noiseFilter);
+      noiseFilter.connect(noiseGain);
+      noiseGain.connect(this.audioCtx.destination);
+
+      droneOsc.start();
+      noiseSource.start();
+
+      this.ambienceNodes = { droneOsc, noiseSource, droneGain, noiseGain };
+      this.ambienceActive = true;
+    } catch (e) {
+      console.warn("Ambience audio failed:", e);
+    }
+  }
+
+  stopAmbience() {
+    if (!this.ambienceNodes) return;
+    try {
+      this.ambienceNodes.droneGain.gain.linearRampToValueAtTime(0.0001, this.audioCtx.currentTime + 0.5);
+      this.ambienceNodes.noiseGain.gain.linearRampToValueAtTime(0.0001, this.audioCtx.currentTime + 0.5);
+      setTimeout(() => {
+        try {
+          this.ambienceNodes.droneOsc.stop();
+          this.ambienceNodes.noiseSource.stop();
+        } catch (e) {}
+        this.ambienceNodes = null;
+        this.ambienceActive = false;
+      }, 500);
+    } catch (e) {
+      this.ambienceNodes = null;
+      this.ambienceActive = false;
+    }
+  }
+
+  // Tactical radio incoming chime
+  playIncomingCallTone() {
+    this.playBeep(987.77, 0.08); // B5
+    setTimeout(() => this.playBeep(1318.51, 0.12), 90); // E6
   }
 
   // Synthesized mechanical key click
