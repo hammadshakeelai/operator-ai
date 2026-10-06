@@ -128,7 +128,10 @@ Type 'cctv CAM-02' or 'cctv CAM-03' to examine wireframes.`
 
   // Radio transmitter to Agent Walker
   transmitRadio(message) {
-    const clean = message.toLowerCase().trim();
+    if (!message || typeof message !== 'string') {
+      return { speaker: 'Walker', text: 'Radio static... repeat transmission, Operator?' };
+    }
+    const clean = message.toLowerCase().trim().slice(0, 300);
 
     if (clean.includes('749201') || clean.includes('door') || clean.includes('code')) {
       if (!this.isDecrypted) {

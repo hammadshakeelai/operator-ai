@@ -26,9 +26,10 @@ class TerminalController {
       window.audioEngine.playKeyClick();
 
       if (e.key === 'Enter') {
-        const cmd = this.input.value.trim();
+        const cmd = this.input.value.trim().slice(0, 500);
         if (cmd) {
           this.history.push(cmd);
+          if (this.history.length > 100) this.history.shift(); // Bound history size
           this.historyIndex = this.history.length;
           this.input.value = '';
           this.executeCommand(cmd);
@@ -81,18 +82,16 @@ Type 'help' for tactical instructions, or speak into microphone (PTT).
 
   println(text, type = 'normal') {
     if (!this.screen) return;
+
+    // Prune oldest DOM nodes when buffer exceeds 250 lines to prevent DOM bloat / memory leak
+    while (this.screen.children.length > 250) {
+      this.screen.removeChild(this.screen.firstChild);
+    }
+
     const line = document.createElement('div');
     line.className = `term-line ${type}`;
-    line.textContent = text;
+    line.textContent = String(text);
     this.screen.appendChild(line);
-    this.screen.scrollTop = this.screen.scrollHeight;
-  }
-
-  printHtml(html) {
-    if (!this.screen) return;
-    const div = document.createElement('div');
-    div.innerHTML = html;
-    this.screen.appendChild(div);
     this.screen.scrollTop = this.screen.scrollHeight;
   }
 
@@ -340,6 +339,15 @@ window.addEventListener('DOMContentLoaded', () => {
       });
     });
   }
+
+  // Tab buttons
+  document.getElementById('tabCctv')?.addEventListener('click', () => {
+    window.terminalController?.executeCommand('cctv CAM-02');
+  });
+
+  document.getElementById('tabDocs')?.addEventListener('click', () => {
+    window.terminalController?.executeCommand('docs');
+  });
 
   // Model Selector
   const modelSelect = document.getElementById('modelSelect');

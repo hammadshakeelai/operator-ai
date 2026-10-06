@@ -127,21 +127,31 @@ class AudioEngine {
     this.playBeep(220, 0.15, 'sawtooth');
   }
 
-  // Text-To-Speech (Agent Walker / AI Copilot)
+  // Text-To-Speech (Agent Walker / AI Copilot) - Hardened against Chromium hang bug & payload flooding
   speak(text, speaker = 'agent') {
-    if (!this.voiceEnabled || !('speechSynthesis' in window)) return;
+    if (!this.voiceEnabled || !('speechSynthesis' in window) || !text) return;
 
-    window.speechSynthesis.cancel();
+    try {
+      window.speechSynthesis.cancel();
+    } catch (e) {}
+
     this.playRadioSquelch('start');
 
     setTimeout(() => {
-      const cleanText = text.replace(/[*#_`]/g, '');
+      // Sanitize markup and strictly limit length to prevent browser audio thread stalls
+      const cleanText = String(text)
+        .replace(/[*#_`~<>]/g, '')
+        .trim()
+        .slice(0, 280);
+
+      if (!cleanText) return;
+
       const utterance = new SpeechSynthesisUtterance(cleanText);
 
       // Distinct voice parameters
       if (speaker === 'agent') {
         utterance.rate = 1.05;
-        utterance.pitch = 0.85; // Serious tactical field agent
+        utterance.pitch = 0.85; // Tactical field agent
       } else if (speaker === 'ai') {
         utterance.rate = 1.0;
         utterance.pitch = 1.25; // Synthetic digital copilot
@@ -151,8 +161,16 @@ class AudioEngine {
         this.playRadioSquelch('end');
       };
 
+      utterance.onerror = (e) => {
+        console.warn('SpeechSynthesis error:', e);
+      };
+
+      // Safeguard against Chrome SpeechSynthesis pause/freeze bug
       window.speechSynthesis.speak(utterance);
-    }, 100);
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+    }, 80);
   }
 
   // Speech-To-Text (Voice Recognition)
@@ -171,9 +189,11 @@ class AudioEngine {
       };
 
       this.recognition.onresult = (event) => {
-        const transcript = event.results[0][0].transcript;
-        if (this.onVoiceInput) {
-          this.onVoiceInput(transcript);
+        if (event.results && event.results[0] && event.results[0][0]) {
+          const transcript = event.results[0][0].transcript.slice(0, 300);
+          if (this.onVoiceInput) {
+            this.onVoiceInput(transcript);
+          }
         }
       };
 
@@ -193,19 +213,21 @@ class AudioEngine {
 
   toggleRecording(callback) {
     if (!this.recognition) {
-      alert("Speech Recognition is not supported in this browser. Use Chrome/Edge or type terminal commands.");
+      if (window.terminalController) {
+        window.terminalController.println("[VOX SYSTEM ALERT]: Web Speech Recognition not available in this browser. Use Chrome/Edge or type commands in terminal.", "error");
+      }
       return;
     }
 
     this.onVoiceInput = callback;
     if (this.isRecording) {
-      this.recognition.stop();
+      try { this.recognition.stop(); } catch (e) {}
     } else {
       this.ensureContext();
       try {
         this.recognition.start();
       } catch (e) {
-        console.warn("Recognition already started", e);
+        console.warn("Recognition already active", e);
       }
     }
   }

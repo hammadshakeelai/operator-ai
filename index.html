@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OPERATOR // AI - Cyber Intelligence Terminal</title>
   <meta name="description" content="A cyber-intelligence detective terminal game powered by 4-9B parameter models, local voice, and Web Audio. Built for Programming for AI subject project.">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
   <link rel="stylesheet" href="css/terminal.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📟</text></svg>">
 </head>
@@ -35,7 +36,7 @@
       <button class="btn-icon" id="toggleCrtBtn" title="Toggle CRT Scanline Effect">📺 CRT FX</button>
       <button class="btn-icon" id="toggleAudioBtn" title="Toggle Sound FX">🔊 SFX</button>
       <button class="btn-icon" id="openDocsBtn" title="Course Project Documentation">📑 PROJECT DOCS</button>
-      <a href="https://github.com/hammadshakeelai/operator-ai" target="_blank" class="btn-icon" style="text-decoration: none; color: inherit;" title="GitHub Repository">⭐ REPO</a>
+      <a href="https://github.com/hammadshakeelai/operator-ai" target="_blank" rel="noopener noreferrer" class="btn-icon" style="text-decoration: none; color: inherit;" title="GitHub Repository">⭐ REPO</a>
     </div>
   </header>
 
@@ -97,10 +98,10 @@
         <div class="terminal-tab active">
           <span>>_</span> BASH CONSOLE (FDI-SH)
         </div>
-        <div class="terminal-tab" onclick="window.terminalController.executeCommand('cctv CAM-02')">
+        <div class="terminal-tab" id="tabCctv">
           <span>📹</span> SURVEILLANCE FEED
         </div>
-        <div class="terminal-tab" onclick="window.terminalController.executeCommand('docs')">
+        <div class="terminal-tab" id="tabDocs">
           <span>📋</span> AI ARCHITECTURE
         </div>
       </div>
@@ -111,7 +112,7 @@
 
       <div class="terminal-input-bar">
         <span class="prompt-prefix">operator@fdi-station-49:~$</span>
-        <input type="text" id="termInput" class="terminal-input" placeholder="Type command (e.g. 'help', 'ls', 'radio 749201', 'ask <query>')..." autocomplete="off" autofocus>
+        <input type="text" id="termInput" class="terminal-input" placeholder="Type command (e.g. 'help', 'ls', 'radio 749201', 'ask <query>')..." maxlength="500" autocomplete="off" autofocus>
       </div>
     </section>
 
